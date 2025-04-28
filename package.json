@@ -1,0 +1,14 @@
+{
+  "name": "yearbook",
+  "version": "1.0.0",
+  "description": "Simple comment app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "languageinstinct",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

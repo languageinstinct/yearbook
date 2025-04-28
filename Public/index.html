@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yearbook</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ascii-container">
+    <pre class="ascii-art">
+        ,-.  
+        ,---,                                ,---,                         ,--/ /|  
+       /_ ./|                       __  ,-.,---.'|      ,---.     ,---.  ,--. :/ |  
+ ,---, |  ' :                     ,' ,'/ /||   | :     '   ,'\   '   ,'\ :  : ' /   
+/___/ \.  : |  ,---.     ,--.--.  '  | |' |:   : :    /   /   | /   /   ||  '  /    
+ .  \  \ ,' ' /     \   /       \ |  |   ,':     |,-..   ; ,. :.   ; ,. :'  |  :    
+  \  ;  `  ,'/    /  | .--.  .-. |'  :  /  |   : '  |'   | |: :'   | |: :|  |   \   
+   \  \    '.    ' / |  \__\/: . .|  | '   |   |  / :'   | .; :'   | .; :'  : |. \  
+    '  \   |'   ;   /|  ," .--.; |;  : |   '   : |: ||   :    ||   :    ||  | ' \ \ 
+     \  ;  ;'   |  / | /  /  ,.  ||  , ;   |   | '/ : \   \  /  \   \  / '  : |--'  
+      :  \  \   :    |;  :   .'   \---'    |   :    |  `----'    `----'  ;  |,'     
+       \  ' ;\   \  / |  ,     .-./        /    \  /                     '--'       
+        `--`  `----'   `--`---'            `-'----'                                 
+    </pre>
+</div>
+
+<div class="description-box">
+    <p>
+        Welcome to Yearbook.<br>
+        Leave a short message.<br>
+        No edits. No deletions.<br>
+        Messages are permanent.<br>
+        This is your history.
+    </p>
+</div>
+
+<h2 class="comment-title">your message:</h2>
+
+<form action="/comment" method="POST">
+    <input type="text" name="message" maxlength="128" size="64" autocomplete="off" required>
+</form>
+
+
+<!-- (deleted <hr> here) -->
+
+<h3 class="space-title">space:</h3>
+
+<div id="comments-container">
+    <!-- Comments will be dynamically loaded here -->
+</div>
+
+
+<script>
+// Fetch comments directly
+function loadComments() {
+    fetch('/comments.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('comments-container').innerHTML = data;
+        });
+}
+
+window.addEventListener('load', loadComments);
+</script>
+
+</body>
+<a href="https://steamcommunity.com/id/vsprofile/" class="signature-star" target="_blank">*</a>
+
+</html>
