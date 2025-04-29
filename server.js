@@ -39,7 +39,7 @@ app.post('/comment', (req, res) => {
         return res.status(400).send('Empty message.');
     }
 
-    const timestamp = formatTimestamp(new Date());
+    const timestamp = formatTimestamp(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
     const currentComments = fs.readFileSync(COMMENTS_FILE, 'utf-8');
     const commentCount = (currentComments.match(/\*#(\d+)/g) || []).length + 1;
 
@@ -71,7 +71,9 @@ function escapeHtml(text) {
 }
 
 // Format timestamp
-function formatTimestamp(date) {
+function formatTimestamp(dateString) {
+    const date = new Date(dateString);
+
     let hours = date.getHours();
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -83,6 +85,8 @@ function formatTimestamp(date) {
     const year = date.getFullYear();
 
     return `${month}/${day}/${year} ${hours}:${minutes.toString().padStart(2, '0')}${ampm}`;
+}
+
 }
 
 // Start server
