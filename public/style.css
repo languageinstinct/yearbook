@@ -156,3 +156,19 @@ input[type="text"]::placeholder {
         text-shadow: 0 0 12px #ffff66, 0 0 24px #ffff66;
     }
 }
+
+#refresh-button {
+    background-color: black;
+    color: #ffd580;
+    border: 1px solid #555;
+    padding: 8px 16px;
+    margin: 10px auto;
+    display: block;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#refresh-button:hover {
+    background-color: #111;
+}

@@ -10,16 +10,14 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // PostgreSQL connection
+// at very top, if you want .env locally:
+// require('dotenv').config();
+
 const pool = new Pool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  
 
 // Star colors
 const colorClasses = ['star-color-blue', 'star-color-white', 'star-color-yellow', 'star-color-orange'];

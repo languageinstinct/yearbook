@@ -45,6 +45,7 @@
 <!-- (deleted <hr> here) -->
 
 <h3 class="space-title">space:</h3>
+<button id="refresh-button">refresh space</button>
 
 <div id="comments-container">
     <!-- Comments will be dynamically loaded here -->
@@ -74,6 +75,15 @@
                 });
             });
     }
+    
+    window.addEventListener('load', loadComments);
+    
+    // Refresh button
+    document.getElementById('refresh-button').addEventListener('click', function() {
+        loadComments();
+    });
+    </script>
+    
     
     window.addEventListener('load', loadComments);
     </script>
