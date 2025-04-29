@@ -1,62 +1,68 @@
-// server.js (splash wall version)
-
 const express = require('express');
-const fs = require('fs');
+const { Pool } = require('pg');
 const path = require('path');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 
-// File to store comments
-const COMMENTS_FILE = path.join(__dirname, 'public', 'comments.html');
+// PostgreSQL connection
+const pool = new Pool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
 // Star colors
 const colorClasses = ['star-color-blue', 'star-color-white', 'star-color-yellow', 'star-color-orange'];
 
-// Create empty comments file if it doesn't exist
-if (!fs.existsSync(COMMENTS_FILE)) {
-    fs.writeFileSync(COMMENTS_FILE, '');
-}
+// Ensure table exists
+(async () => {
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS comments (
+            id SERIAL PRIMARY KEY,
+            message TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            color VARCHAR(50),
+            pos_top INTEGER,
+            pos_left INTEGER
+        );
+    `);
+})();
 
 // Serve main page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Serve raw comments
-app.get('/comments', (req, res) => {
-    res.sendFile(COMMENTS_FILE);
+// API: Fetch all comments
+app.get('/comments', async (req, res) => {
+    const result = await pool.query('SELECT * FROM comments ORDER BY created_at DESC');
+    res.json(result.rows);
 });
 
-// Handle new comment POST
-app.post('/comment', (req, res) => {
+// API: Save new comment
+app.post('/comment', async (req, res) => {
     const message = req.body.message.trim();
-    if (!message) {
-        return res.status(400).send('Empty message.');
-    }
-
-    const timestamp = formatTimestamp(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
-    const currentComments = fs.readFileSync(COMMENTS_FILE, 'utf-8');
-    const commentCount = (currentComments.match(/\*#(\d+)/g) || []).length + 1;
+    if (!message) return res.status(400).send('Empty message.');
 
     const randomColorClass = colorClasses[Math.floor(Math.random() * colorClasses.length)];
     const randomTop = Math.floor(Math.random() * 1000); // random top position
     const randomLeft = Math.floor(Math.random() * 1600); // random left position
 
-    const newComment = `
-<div class="splash-comment" style="top:${randomTop}px; left:${randomLeft}px;">
-    <span class="star-comment ${randomColorClass}">*#${commentCount} (${timestamp})<br>${escapeHtml(message)}</span>
-</div>
-`;
+    await pool.query(
+        'INSERT INTO comments (message, color, pos_top, pos_left) VALUES ($1, $2, $3, $4)',
+        [escapeHtml(message), randomColorClass, randomTop, randomLeft]
+    );
 
-    // Prepend new comment at the top
-    const updatedComments = newComment + currentComments;
-
-    fs.writeFileSync(COMMENTS_FILE, updatedComments, 'utf-8');
     res.redirect('/');
 });
 
@@ -68,25 +74,6 @@ function escapeHtml(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
-
-// Format timestamp
-function formatTimestamp(dateString) {
-    const date = new Date(dateString);
-
-    let hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    if (hours === 0) hours = 12;
-
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const year = date.getFullYear();
-
-    return `${month}/${day}/${year} ${hours}:${minutes.toString().padStart(2, '0')}${ampm}`;
-
-
 }
 
 // Start server

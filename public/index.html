@@ -52,17 +52,32 @@
 
 
 <script>
-// Fetch comments directly
-function loadComments() {
-    fetch('/comments.html')
-        .then(response => response.text())
-        .then(data => {
-            document.getElementById('comments-container').innerHTML = data;
-        });
-}
-
-window.addEventListener('load', loadComments);
-</script>
+    function loadComments() {
+        fetch('/comments')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('comments-container');
+                container.innerHTML = ''; // Clear first
+    
+                data.forEach(comment => {
+                    const splash = document.createElement('div');
+                    splash.classList.add('splash-comment');
+                    splash.style.top = comment.pos_top + 'px';
+                    splash.style.left = comment.pos_left + 'px';
+    
+                    const star = document.createElement('span');
+                    star.classList.add('star-comment', comment.color || 'star-color-white');
+                    star.innerHTML = `* (${new Date(comment.created_at).toLocaleString("en-US", { timeZone: "America/New_York" })})<br>${comment.message}`;
+    
+                    splash.appendChild(star);
+                    container.appendChild(splash);
+                });
+            });
+    }
+    
+    window.addEventListener('load', loadComments);
+    </script>
+    
 
 </body>
 <a href="https://steamcommunity.com/id/languageinstinct/" class="signature-star" target="_blank">*</a>
