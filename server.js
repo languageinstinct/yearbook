@@ -85,7 +85,7 @@ function formatTimestamp(dateString) {
     const year = date.getFullYear();
 
     return `${month}/${day}/${year} ${hours}:${minutes.toString().padStart(2, '0')}${ampm}`;
-}
+
 
 }
 
