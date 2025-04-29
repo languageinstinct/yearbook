@@ -12,7 +12,7 @@
         ,-.  
         ,---,                                ,---,                         ,--/ /|  
        /_ ./|                       __  ,-.,---.'|      ,---.     ,---.  ,--. :/ |  
- ,---, |  ' :                     ,' ,'/ /||   | :     '   ,'\   '   ,'\ :  : ' /   
+ ,---, |  ' :                     ,' ,'/ /||   | :     '   ,\   '   ,\ :  : ' /   
 /___/ \.  : |  ,---.     ,--.--.  '  | |' |:   : :    /   /   | /   /   ||  '  /    
  .  \  \ ,' ' /     \   /       \ |  |   ,':     |,-..   ; ,. :.   ; ,. :'  |  :    
   \  ;  `  ,'/    /  | .--.  .-. |'  :  /  |   : '  |'   | |: :'   | |: :|  |   \   
@@ -41,55 +41,51 @@
     <input type="text" name="message" maxlength="128" size="64" autocomplete="off" required>
 </form>
 
-
-<!-- (deleted <hr> here) -->
-
 <h3 class="space-title">space:</h3>
 <button id="refresh-button">refresh space</button>
 
-<div id="comments-container">
-    <!-- Comments will be dynamically loaded here -->
-</div>
-
+<div id="comments-container"></div>
 
 <script>
-    function loadComments() {
-        fetch('/comments')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('comments-container');
-                container.innerHTML = ''; // Clear first
-    
-                data.forEach(comment => {
-                    const splash = document.createElement('div');
-                    splash.classList.add('splash-comment');
-                    splash.style.top = comment.pos_top + 'px';
-                    splash.style.left = comment.pos_left + 'px';
-    
-                    const star = document.createElement('span');
-                    star.classList.add('star-comment', comment.color || 'star-color-white');
-                    star.innerHTML = `* (${new Date(comment.created_at).toLocaleString("en-US", { timeZone: "America/New_York" })})<br>${comment.message}`;
-    
-                    splash.appendChild(star);
-                    container.appendChild(splash);
-                });
-            });
-    }
-    
-    window.addEventListener('load', loadComments);
-    
-    // Refresh button
-    document.getElementById('refresh-button').addEventListener('click', function() {
-        loadComments();
+// Load and render comments from the API
+async function loadComments() {
+    const resp = await fetch('/comments');
+    const comments = await resp.json();
+    const container = document.getElementById('comments-container');
+    container.innerHTML = '';
+    comments.forEach(c => {
+        const splash = document.createElement('div');
+        splash.classList.add('splash-comment');
+        splash.style.top = c.pos_top + 'px';
+        splash.style.left = c.pos_left + 'px';
+        splash.innerHTML = `
+            <span class="star-comment ${c.color}">
+                * (${new Date(c.created_at).toLocaleString('en-US', { timeZone: 'America/New_York' })})<br>
+                ${escapeHtml(c.message)}
+            </span>
+        `;
+        container.appendChild(splash);
     });
-    </script>
-    
-    
-    window.addEventListener('load', loadComments);
-    </script>
-    
+}
 
-</body>
+// HTML-escape to prevent XSS
+function escapeHtml(text) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+// Initial load
+window.addEventListener('load', loadComments);
+
+// Refresh button
+document.getElementById('refresh-button').addEventListener('click', loadComments);
+</script>
+
 <a href="https://steamcommunity.com/id/languageinstinct/" class="signature-star" target="_blank">*</a>
 
+</body>
 </html>
